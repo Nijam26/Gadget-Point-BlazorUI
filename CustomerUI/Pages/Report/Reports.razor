@@ -1,0 +1,53 @@
+﻿@page "/reportviewer"
+@using CustomerUI.Pages.Brand
+@using CustomerUI.Pages.Category
+@using CustomerUI.Pages.Product
+@using CustomerUI.Pages.SubCategory
+@using CustomerUI.Pages.Supplier
+@using CustomerUI.Pages.PurchaseProduct
+
+
+<h3>Report Viewer</h3>
+
+<!-- Create a dropdown or navigation menu to select a report -->
+<select @bind="selectedReport">
+    <option value="purchase">Purchase Report</option>
+    <option value="product">Product Report</option>
+    <option value="brand">Brand Report</option>
+    <option value="category">Category Report</option>
+    <option value="subcategory">Sub Category Report</option>
+    <option value="supplier">Supplier Report</option>
+    <!-- Add more report options as needed -->
+</select>
+
+<!-- Display the selected report based on user choice -->
+<div>
+    @switch (selectedReport)
+    {
+        case "purchase":
+            <PurchaseReport />
+            break;
+        case "product":
+            <ProductReport />
+            break;
+        case "brand":
+            <BrandReport />
+            break;
+        case "category":
+            <CategoryReport />
+            break;
+        case "subcategory":
+            <SubCategoryReport />
+            break;
+        case "supplier":
+            <SupplierReport />
+            break;
+        default:
+            <p>Select a report from the dropdown.</p>
+            break;
+    }
+</div>
+
+@code {
+    private string selectedReport = ""; // Default to the product report
+}

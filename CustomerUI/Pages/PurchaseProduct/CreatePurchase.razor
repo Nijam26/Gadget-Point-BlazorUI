@@ -1,0 +1,73 @@
+﻿@page "/create-purchase"
+@using CustomerUI.Services
+@using CustomerUI.Data
+@using Microsoft.AspNetCore.Components.Forms
+
+<h3>Create Purchase</h3>
+
+<EditForm Model="newPurchase" OnValidSubmit="CreatePurchaseAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="productId">Product Name:</label>
+        <InputSelect class="form-control" id="productId" @bind-Value="newPurchase.ProductId">
+            <option value="">Select Product</option>
+            @foreach (var product in products)
+            {
+                <option value="@product.ProductId">@product.ProductName</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="supplierId">Supplier Name:</label>
+        <InputSelect class="form-control" id="supplierId" @bind-Value="newPurchase.SupplierId">
+            <option value="">Select Supplier</option>
+            @foreach (var supplier in suppliers)
+            {
+                <option value="@supplier.SupplierId">@supplier.SupplierName</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="purchaseQuantity">Purchase Quantity:</label>
+        <InputNumber class="form-control" id="purchaseQuantity" @bind-Value="newPurchase.PurchaseQuantity" />
+    </div>
+
+    <div class="form-group">
+        <label for="purchasePrice">Purchase Price:</label>
+        <InputNumber class="form-control" id="purchasePrice" @bind-Value="newPurchase.PurchasePrice" />
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Add New Purchase</button>
+</EditForm>
+
+@code {
+    private PurchaseProduct newPurchase = new PurchaseProduct();
+    private IEnumerable<Product> products = new List<Product>();
+    private IEnumerable<Supplier> suppliers = new List<Supplier>();
+
+    [Inject]
+    private IPurchaseService PurchaseService { get; set; }
+    [Inject]
+    private IProductService ProductService { get; set; }
+    [Inject]
+    private ISupplierService SupplierService { get; set; }
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await ProductService.GetAllProducts();
+        suppliers = await SupplierService.GetSuppliers();
+    }
+
+    private async Task CreatePurchaseAsync()
+    {
+        await PurchaseService.CreatePurchase(newPurchase);
+        NavigationManager.NavigateTo("/purchases");
+    }
+}

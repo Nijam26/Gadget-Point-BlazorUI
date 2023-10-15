@@ -1,0 +1,182 @@
+﻿ 
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Gadget Point</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/brands">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Brand
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/categories">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Category
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/subcategories">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> SubCategory
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/products">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Prodcut
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/suppliers">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Supplier
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/purchases">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> PurchaseProduct
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/reportviewer">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Report Viewer
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        
+        
+      @*   <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/report/{ReportType}">
+                <ul>
+                    <li><NavLink href="/report/productRpt" Match="NavLinkMatch.All">Product Report</NavLink></li>
+                    <li><NavLink href="/report/categoryRpt" Match="NavLinkMatch.All">Category Report</NavLink></li>
+                    <!-- Add links for other report types as needed -->
+                </ul>
+                <span class="oi oi-list-rich" aria-hidden="true"></span>Reports
+            </NavLink>
+        </div> *@
+  @*       <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/report/productRpt" Match="NavLinkMatch.All">Product Report</NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/report/categoryRpt" Match="NavLinkMatch.All">Category Report</NavLink>
+        </div>
+        <!-- Add links for other report types as needed --> *@
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
+ 
+
+
+@*<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Gadget Point</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+@if (IsLoggedIn)
+{
+    <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+        <nav class="flex-column">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> Home
+                </NavLink>
+            </div>
+
+            @if (IsAdmin)
+            {
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/brands">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Brand
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/categories">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Category
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/subcategories">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> SubCategory
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/products">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Product
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/suppliers">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Supplier
+                    </NavLink>
+                </div>
+
+               @* <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/fetchSupplier">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Supplier Report
+                    </NavLink>
+                </div>*@
+            }
+  @*      </nav>
+    </div>*@
+}
+
+@* @code {
+    private bool collapseNavMenu = true;
+    private string UserEmail = "admin@test.com"; // Replace with actual user email
+    private bool IsAdmin => UserEmail == "admin@test.com"; // Check if the user is an admin
+    private bool IsLoggedIn = false; // Replace with actual authentication logic
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+} *@
+
+@*@code {
+    private bool collapseNavMenu = true;
+    private string UserEmail = "admin@test.com"; // Replace with actual user email
+    private bool IsAdmin => UserEmail == "admin@test.com"; // Check if the user is an admin
+    private bool IsLoggedIn = false; // Replace with actual authentication logic
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}*@
+
+
+
+

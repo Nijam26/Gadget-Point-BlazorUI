@@ -1,0 +1,104 @@
+﻿@page "/edit-purchase/{id}"
+@using CustomerUI.Services
+@using CustomerUI.Data
+@using System.Linq
+
+<div class="row">
+    <div class="col-lg-9">
+        <h3>Edit Purchase</h3>
+    </div>
+    <div class="col-lg-3 text-right">
+        <a href="/purchases" role="button" class="btn btn-secondary btn-sm">Back to List</a>
+    </div>
+</div>
+<div class="form-control" style="background-color:gainsboro">
+    <div class="row">
+        <div class="col-5">
+            <div class="form-group">
+                <label for="PurchaseDate">Purchase Date:</label>
+                <input type="date" class="form-control" id="PurchaseDate" @bind="editedPurchase.PurchaseDate" />
+            </div>
+
+            <div class="form-group">
+                <label for="ProductId">Product Name:</label>
+                <select class="form-control" @bind="editedPurchase.ProductId">
+                    <option value="">-- Select Product Name --</option>
+                    @foreach (var product in products)
+                    {
+                        <option value="@product.ProductId">@product.ProductName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="SupplierId">Supplier Name:</label>
+                <select class="form-control" @bind="editedPurchase.SupplierId">
+                    <option value="">-- Select Supplier Name --</option>
+                    @foreach (var supplier in suppliers)
+                    {
+                        <option value="@supplier.SupplierId">@supplier.SupplierName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="PurchaseQuantity">Purchase Quantity:</label>
+                <input type="number" class="form-control" id="PurchaseQuantity" @bind="editedPurchase.PurchaseQuantity" />
+            </div>
+
+            <div class="form-group">
+                <label for="PurchasePrice">Purchase Price:</label>
+                <input type="number" class="form-control" id="PurchasePrice" @bind="editedPurchase.PurchasePrice" />
+            </div>
+
+            <button class="btn btn-light" @onclick="Clear">Clear</button>
+            <button class="btn btn-primary" @onclick="UpdatePurchase">Update</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private PurchaseProduct editedPurchase = new PurchaseProduct();
+    private IEnumerable<Product> products = new List<Product>();
+    private IEnumerable<Supplier> suppliers = new List<Supplier>();
+
+    [Inject]
+    private IPurchaseService PurchaseService { get; set; }
+    [Inject]
+    private IProductService ProductService { get; set; }
+    [Inject]
+    private ISupplierService SupplierService { get; set; }
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (int.TryParse(id, out int purchaseId))
+        {
+            editedPurchase = await PurchaseService.GetPurchaseById(purchaseId);
+            products = await ProductService.GetAllProducts();
+            suppliers = await SupplierService.GetSuppliers();
+        }
+    }
+
+    private async Task UpdatePurchase()
+    {
+        try
+        {
+            await PurchaseService.UpdatePurchase(editedPurchase.PurchaseId, editedPurchase);
+            NavigationManager.NavigateTo("/purchases");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating Purchase: {ex.Message}");
+        }
+    }
+
+    private void Clear()
+    {
+        editedPurchase = new PurchaseProduct();
+    }
+}

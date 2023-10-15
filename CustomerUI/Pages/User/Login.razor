@@ -1,0 +1,216 @@
+﻿@page "/login"
+@using CustomerUI.Account
+@using CustomerUI.Services
+@inject IAuthService AuthService
+@inject UserAccountService userAccountService
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<h3>Login</h3>
+
+<EditForm Model="loginDto" OnValidSubmit="Loginmain">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="loginDto.Email" />
+    </div>
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <InputText id="Password" type="password" class="form-control" @bind-Value="loginDto.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginDTO loginDto = new LoginDTO();
+
+    //private async Task Authenticate()
+    //{
+    //    var userAccount = userAccountService.GetByUserName(loginDto.Username);
+    //    if(userAccount == null || userAccount.Password != loginDto.Password)
+    //    {
+    //        await JSRuntime.InvokeVoidAsync("alert", "Invalid User name or password");
+    //        return;
+    //    }
+
+    //    var coustomAuthStateProvider = (CustomAuthentication)authStateProvider;
+    //    await coustomAuthStateProvider.UpdateAuthenticationState(new LoginDto
+    //    {
+    //            Username = userAccount.Username,
+    //            Role = userAccount.Role
+    //    });
+
+    //    Navigation.NavigateTo("/", true);
+    //}
+
+    private async Task Loginmain()
+    {
+        var user = await AuthService.Login(loginDto);
+        var userAccount = userAccountService.GetByUserName(loginDto.Email);
+        if (user != null)
+        {
+            var coustomAuthStateProvider = (CustomAuthentication)authStateProvider;
+            await coustomAuthStateProvider.UpdateAuthenticationState(new LoginDTO
+                {
+                    Email = userAccount.Email,
+                    Role = userAccount.Role
+                });
+
+            Navigation.NavigateTo("/", true);
+        }
+        else
+        {
+            // Handle login failure
+
+            if (userAccount == null || userAccount.Password != loginDto.Password)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Invalid User name or password");
+                return;
+            }
+        }
+    }
+
+
+
+
+    //private async Task Loginmain()
+    //{
+    //    var user = await AuthService.Login(loginDto);
+
+    //    if (user != null)
+    //    {
+    //        // Check if the user is an admin based on their email
+    //        if (user.UserName == "admin@mail.com")
+    //        {
+    //            // Notify the component to re-render
+    //            StateHasChanged();
+    //            Navigation.NavigateTo("/");
+    //            await JSRuntime.InvokeVoidAsync("location.reload");
+    //        }
+    //        else
+    //        {
+    //            StateHasChanged();
+    //            // For non-admin users, navigate to the home page directly
+    //            Navigation.NavigateTo("");
+    //            await JSRuntime.InvokeVoidAsync("location.reload");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // Handle login failure
+    //    }
+    //}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*@page "/login"
+@using CustomerUI.Data
+@using CustomerUI.Services
+@using CustomerUI.Account
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject UserAccountService userAccountService
+@inject AuthenticationStateProvider authStateProvider
+@inject IJSRuntime JSRuntime
+
+<h3>Login</h3>
+
+<EditForm Model="loginDto" OnValidSubmit="Loginmain">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <InputText id="Email" class="form-control" @bind-Value="loginDto.Email" />
+    </div>
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <InputText id="Password" type="password" class="form-control" @bind-Value="loginDto.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@code {
+    private LoginDTO loginDto = new LoginDTO();
+
+    private async Task Loginmain()
+    {
+        var user = await AuthService.Login(loginDto);
+        var userAccount = userAccountService.GetByUserName(loginDto.Email);
+        if (user != null)
+        {
+            var coustomAuthStateProvider = (CustomAuthentication)authStateProvider;
+            await coustomAuthStateProvider.UpdateAuthenticationState(new LoginDto
+                {
+                    Username = userAccount.Username,
+                    Role = userAccount.Role
+                });
+
+            Navigation.NavigateTo("/", true);
+        }
+        else
+        {
+            // Handle login failure
+
+            if (userAccount == null || userAccount.Password != loginDto.Password)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Invalid User name or password");
+                return;
+            }
+        }
+
+
+    //private async Task Loginmain()
+    //{
+    //    var user = await AuthService.Login(loginDto);
+
+    //    if (user != null)
+    //    {
+    //        // Check if the user is an admin based on their email
+    //        if (user.Email == "admin@test.com")
+    //        {
+    //            // Notify the component to re-render
+    //            StateHasChanged();
+    //            Navigation.NavigateTo("");
+    //            await JSRuntime.InvokeVoidAsync("location.reload");
+    //        }
+    //        else
+    //        {
+    //            // For non-admin users, navigate to the home page directly
+    //            Navigation.NavigateTo("");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // Handle login failure
+    //    }
+    //}
+}
+*@

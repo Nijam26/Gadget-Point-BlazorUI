@@ -1,0 +1,132 @@
+﻿@page "/brandRpt"
+
+@using CustomerUI.Data
+@using CustomerUI.Services
+@using Microsoft.JSInterop
+
+@inject IBrandService BrandService
+@inject IJSRuntime js
+
+<PageTitle>Brand Report</PageTitle>
+
+
+
+
+@if (brands == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+
+    <div class="container-fluid">
+
+
+        <div class="row">
+
+            <div id="printableTable">
+
+
+
+                <div class="page-header">
+                    <div class="col-12">
+                        <div class="row">
+                            <!-- Image Div on the Left -->
+                            <div class="col-md-2">
+                                <img src="https://i0.wp.com/fullopportunities.com/wp-content/uploads/2023/09/IsDB-BISEW-IT-Scholarship-Programme.jpg?resize=696%2C418&ssl=1" width="100" height="100" />
+                            </div>
+                            <!-- Content Div on the Right -->
+                            <div class="col-md-10">
+                                <h2 class="text-center">Gadget Point</h2>
+                                <h3 class="text-center">IsdB BISEW IT Scholarship Program</h3>
+                                <h3 class="text-center">Batch-CS/NVIT-M/53/01</h3>
+                                <h4 class="text-center">Round-53</h4>
+                                <h4 class="text-center">Group: B</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+                @*============================*@
+
+                <div class="full-page">
+                    <div class="table">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Serial No.</th>
+                                    <th>Brand Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var brand in brands)
+                                {
+                                    <tr>
+                                        <td>@brand.BrandId</td>
+                                        <td>@brand.BrandName</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+        <div id="printButton">
+            <button class="btn btn-primary " @onclick="PrintTable">Print Report</button>
+        </div>
+
+
+        <div class="page-footer">
+            <div class="col-12 bg-light py-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="text-left">Print Date/Time: @DateTime.Now</p>
+                    </div>
+                    <div class="col-12">
+                        <p class="text-center">Powered by IsdB BISEW IT Scholarship Program</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+
+}
+
+@code {
+    private IEnumerable<Brand> brands = new List<Brand>();
+
+    [Parameter]
+    public string Param { get; set; }
+
+    private async Task PrintTable()
+    {
+        // Use JavaScript interop to trigger the browser's print functionality
+        await js.InvokeVoidAsync("printTable", "printableTable");
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        brands = (await BrandService.GetBrands()).ToList();
+        await js.InvokeVoidAsync("registerPrintTableFunction");
+    }
+}

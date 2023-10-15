@@ -1,0 +1,262 @@
+﻿@page "/purchases"
+@using CustomerUI.Pages.Report
+@using CustomerUI.Services
+@using CustomerUI.Data
+@using System.Linq
+
+<div class="d-flex align-items-center justify-content-center">
+    <h3 style="color: #808080; font-weight: bold;">All Purchase Products</h3>
+</div>
+
+<!-- Filtering -->
+<div class="d-flex align-items-center justify-content-between filter-container">
+    <div class="d-flex">
+        <input type="text" @bind="filterText" placeholder="Filter by Purchase Date" @oninput="OnFilterTextChanged" />
+    </div>
+    <button @onclick="CreatePurchase" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Purchase</button>
+</div>
+<p>Search Purchase Date: @filterText</p>
+
+<!-- Add a button to toggle the report section -->
+<button @onclick="ToggleReport" class="btn btn-primary"><i class="fas fa-file"></i> Show Report</button>
+<!-- Add a condition to display the report section -->
+@if (showReport)
+{
+    <div class="container-fluid">
+        <!-- ... Rest of your report section ... -->
+        <PurchaseReport />
+    </div>
+}
+<!-- Table with Sorting -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Serial No.</th>
+            <th @onclick="SortByPurchaseDate">
+                Purchase Date
+                <i class="fas fa-caret-down dropdown-icon"></i>
+            </th>
+            <th>Product ID</th>
+            <th>Supplier Name</th>
+            <th>Purchase Quantity</th>
+            <th>Purchase Price</th>
+            <th>Action</th> <!-- Actions column -->
+        </tr>
+    </thead>
+    <tbody>
+        @if (pagedPurchases.Any())
+        {
+            @for (int i = 0; i < pagedPurchases.Count(); i++)
+            {
+                var purchase = pagedPurchases.ElementAt(i);
+                int serialNumber = (CurPage - 1) * pageSize + i + 1;
+
+                <tr>
+                    <td>@serialNumber</td>
+                    <td>@purchase.PurchaseDate.ToString("MM/dd/yyyy")</td>
+                    @*<td>@(productNames.ContainsKey(purchase.ProductId) ? productNames[purchase.ProductId] : "N/A")</td>*@
+                    @*<td>@(supplierNames.ContainsKey(purchase.SupplierId) ? supplierNames[purchase.SupplierId] : "N/A")</td>*@
+                    <td>@purchase.ProductId</td>
+                    <td>@purchase.Supplier.SupplierName</td>
+
+                    <td>@purchase.PurchaseQuantity</td>
+                    <td>@purchase.PurchasePrice</td>
+                    <td>
+                        <button @onclick="() => EditPurchase(purchase.PurchaseId)" class="edit-button"><i class="fas fa-edit"></i> Edit</button>
+                        <button @onclick="() => DeletePurchase(purchase.PurchaseId)" class="delete-button"><i class="fas fa-trash"></i>  Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7">No Results Found</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <input type="button" class="btn btn-lg" id="prev" @onclick="PrevPage" value="Previous" />
+    @for (int i = 1; i <= totalPages; i++)
+    {
+        int j = i;
+        @if (i == CurPage)
+        {
+            <span class="px-2" style="font-weight: bold">@i</span>
+        }
+        else
+        {
+            <span class="px-2" @onclick="() => ShowPage(j)">@i</span>
+        }
+    }
+    <input type="button" class="btn btn-lg" id="next" @onclick="NextPage" value="Next" />
+</div>
+
+@code {
+    private int serialOffset = 1;
+    private int CurPage = 1;
+    private int pageSize = 5;
+    private string filterText = "";
+    private string sortBy = "PurchaseDate";
+    private bool sortAscending = true;
+    private PurchaseProduct? editPurchase;
+    private IEnumerable<PurchaseProduct> PurchaseLists = new List<PurchaseProduct>();
+    private IEnumerable<PurchaseProduct> pagedPurchases = new List<PurchaseProduct>();
+    private int totalPages;
+
+    private IDictionary<int, string> productNames = new Dictionary<int, string>();
+    private IDictionary<int, string> supplierNames = new Dictionary<int, string>();
+
+    [Inject]
+    private IPurchaseService PurchaseService { get; set; }
+    [Inject]
+    private IProductService ProductService { get; set; }
+    [Inject]
+    private ISupplierService SupplierService { get; set; }
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PurchaseLists = await PurchaseService.GetPurchases();
+        await LoadProductAndSupplierNames();
+        await ShowPage();
+    }
+
+    protected async Task ShowPage()
+    {
+        var filteredPurchases = GetFilteredAndSortedPurchases();
+        int startIndex = (CurPage - 1) * pageSize;
+        pagedPurchases = filteredPurchases.Skip(startIndex).Take(pageSize).ToList();
+        totalPages = (int)Math.Ceiling(filteredPurchases.Count() / (double)pageSize);
+    }
+
+    protected async Task NextPage()
+    {
+        if (CurPage < totalPages)
+        {
+            CurPage++;
+            await ShowPage();
+        }
+    }
+
+    protected async Task PrevPage()
+    {
+        if (CurPage > 1)
+        {
+            CurPage--;
+            await ShowPage();
+        }
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        CurPage = i;
+        await ShowPage();
+    }
+
+    private async Task LoadProductAndSupplierNames()
+    {
+        var products = await ProductService.GetAllProducts();
+        var suppliers = await SupplierService.GetSuppliers();
+
+        foreach (var product in products)
+        {
+            productNames[product.ProductId] = product.ProductName;
+        }
+
+        foreach (var supplier in suppliers)
+        {
+            supplierNames[supplier.SupplierId] = supplier.SupplierName;
+        }
+    }
+
+    private void CreatePurchase()
+    {
+        NavigationManager.NavigateTo("/create-purchase");
+    }
+
+    private async void EditPurchase(int purchaseId)
+    {
+        NavigationManager.NavigateTo($"/edit-purchase/{purchaseId}");
+
+        try
+        {
+            editPurchase = await PurchaseService.GetPurchaseById(purchaseId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading Purchase: {ex.Message}");
+        }
+    }
+
+    private async Task DeletePurchase(int purchaseId)
+    {
+        try
+        {
+            await PurchaseService.DeletePurchase(purchaseId);
+            PurchaseLists = await PurchaseService.GetPurchases();
+            await ShowPage();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting purchase: {ex.Message}");
+        }
+    }
+
+    public IEnumerable<PurchaseProduct> GetFilteredAndSortedPurchases()
+    {
+        var filteredPurchases = PurchaseLists;
+
+        if (!string.IsNullOrEmpty(filterText))
+        {
+            var searchText = filterText.Trim().ToLower();
+            filteredPurchases = filteredPurchases
+                .Where(purchase => productNames.ContainsKey(purchase.ProductId) && productNames[purchase.ProductId].ToLower().Contains(searchText));
+        }
+
+        switch (sortBy)
+        {
+            case "PurchaseDate":
+                filteredPurchases = sortAscending
+                    ? filteredPurchases.OrderBy(purchase => purchase.PurchaseDate)
+                    : filteredPurchases.OrderByDescending(purchase => purchase.PurchaseDate);
+                break;
+
+                // Add more cases for other columns if needed
+        }
+
+        return filteredPurchases;
+    }
+
+    private void SortByPurchaseDate()
+    {
+        SetSortCriteria("PurchaseDate");
+        ShowPage();
+    }
+
+    private void SetSortCriteria(string column)
+    {
+        if (sortBy == column)
+            sortAscending = !sortAscending;
+        else
+            sortAscending = true;
+
+        sortBy = column;
+    }
+
+    public void OnFilterTextChanged(ChangeEventArgs e)
+    {
+        filterText = e.Value.ToString();
+        ShowPage();
+    }
+
+    private bool showReport = false;
+
+    private void ToggleReport()
+    {
+        showReport = !showReport;
+    }
+}
