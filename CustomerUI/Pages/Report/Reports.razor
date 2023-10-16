@@ -7,9 +7,13 @@
 @using CustomerUI.Pages.PurchaseProduct
 
 
-<h3>Report Viewer</h3>
+<div class="d-flex align-items-center justify-content-center">
+    <h3 style="color: #808080; font-weight: bold;">Report Viewer</h3>
+</div>
 
+<br />
 <!-- Create a dropdown or navigation menu to select a report -->
+<div class ="d-flex align-items-center justify-content-center">
 <select @bind="selectedReport">
     <option value="purchase">Purchase Report</option>
     <option value="product">Product Report</option>
@@ -19,9 +23,11 @@
     <option value="supplier">Supplier Report</option>
     <!-- Add more report options as needed -->
 </select>
+</div>
 
+ <br />
 <!-- Display the selected report based on user choice -->
-<div>
+ <div class="d-flex align-items-center justify-content-center">
     @switch (selectedReport)
     {
         case "purchase":
@@ -43,10 +49,11 @@
             <SupplierReport />
             break;
         default:
-            <p>Select a report from the dropdown.</p>
+            <h3><p>Select a report from the dropdown.</p></h3>
             break;
     }
 </div>
+
 
 @code {
     private string selectedReport = ""; // Default to the product report

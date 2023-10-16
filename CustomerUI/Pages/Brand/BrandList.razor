@@ -3,8 +3,10 @@
 @using CustomerUI.Services;
 @using CustomerUI.Data;
 
-<h3 style="color: #808080; font-weight: bold;">All Brands Information</h3>
 
+<div class="d-flex align-items-center justify-content-center">
+    <h3 style="color: #808080; font-weight: bold;">All Brands Information</h3>
+</div>
 
 <!-- Filtering -->
 
@@ -235,6 +237,7 @@
         ShowPage(); // Apply filtering and pagination
     }
 
+    //Report Toggle
     private bool showReport = false;
 
     private void ToggleReport()

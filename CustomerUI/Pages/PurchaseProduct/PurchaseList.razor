@@ -5,7 +5,7 @@
 @using System.Linq
 
 <div class="d-flex align-items-center justify-content-center">
-    <h3 style="color: #808080; font-weight: bold;">All Purchase Products</h3>
+    <h3 style="color: #808080; font-weight: bold;">All Purchase Products Information</h3>
 </div>
 
 <!-- Filtering -->
@@ -18,7 +18,7 @@
 <p>Search Purchase Date: @filterText</p>
 
 <!-- Add a button to toggle the report section -->
-<button @onclick="ToggleReport" class="btn btn-primary"><i class="fas fa-file"></i> Show Report</button>
+<button @onclick="ToggleReport" class="btn btn-primary"><i class="fas fa-file"></i> Show Purchase Report</button>
 <!-- Add a condition to display the report section -->
 @if (showReport)
 {

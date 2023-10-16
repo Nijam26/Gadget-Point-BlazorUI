@@ -24,23 +24,10 @@
 
                 <NotAuthorized>
                     <a href="/login">Login</a>
-                    @*<a href="/register">Register</a>*@
+                    <a href="/register">Register</a>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
-
-        @*<div class="top-row px-4">
-            @if (!string.IsNullOrEmpty(UserDisplayName))
-            {
-                <p><strong>Welcome, @UserDisplayName! </strong></p>
-                <a href="#" @onclick="Logout">Logout</a>
-            }
-            else
-            {
-                <a href="/login">Login</a>
-                <a href="/register">Register</a>
-            }
-        </div>*@
         <article class="content px-4">
             @Body
         </article>
@@ -61,30 +48,10 @@
         }
     }
 
-
-    //private async Task Logout()
-    //{
-    //    // Clear user authentication data from local storage
-    //    await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "userDisplayName");
-    //    await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "userToken");
-
-    //    // Update UserDisplayName to an empty string
-    //    UserDisplayName = "";
-
-    //    // Notify Blazor to re-render the component
-    //    StateHasChanged();
-
-    //    // Redirect to the login page or perform other actions after logout
-    //    Navigation.NavigateTo("/login");
-    //}
-
     private async Task Logout()
     {
         var customAuthStateProvider = (CustomAuthentication)authStateProvider;
         await customAuthStateProvider.UpdateAuthenticationState(null);
         Navigation.NavigateTo("/login", true);
     }
-
-
-
 }
