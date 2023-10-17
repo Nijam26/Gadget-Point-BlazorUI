@@ -12,9 +12,6 @@
 
 <div class="d-flex align-items-center justify-content-between filter-container">
     <div class="d-flex">
-       @* <input type="text" @bind="filterText" placeholder="Filter by BrandName" class="filter-input" />
-        <button @onclick="ApplyFilter" class="filter-button">Search</button>*@
-       
         <input type="text" @bind="filterText" placeholder="Filter by BrandName" @oninput="OnFilterTextChanged">
     </div>
     <button @onclick="CreateBrand" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Brands</button>

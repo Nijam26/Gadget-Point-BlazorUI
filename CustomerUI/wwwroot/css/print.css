@@ -29,56 +29,56 @@
         left: 0;
         width: 100%;
         background-color: #ffffff;*/
-        /*border: 1px solid red;*/ /*border*/
-    /*}
+/*border: 1px solid red;*/ /*border*/
+/*}
 
 
     #printableTable {
         margin-top: 20px;*/ /* Adjust the value as needed */
-    /*}*/
+/*}*/
 
-        /*#printableTable .page-header {
+/*#printableTable .page-header {
             background-color: #007bff; 
             color: #fff;*/ /* Text color in the header */
-        /*padding: -30px; 
+/*padding: -30px; 
         }*/
-        /*#printableTable .table {
+/*#printableTable .table {
             margin-top: 130px;*/ /* Add a top margin to create space between page-header and TABLE */
-            /*page-break-after: always;
+/*page-break-after: always;
         }
 
 
     #printableTable {
         display: flex;
         align-items: center;*/ /* Vertically center content in the div */
-    /*}*/
+/*}*/
 
-    /*.col-md-2 {
+/*.col-md-2 {
         flex: 1;*/ /* Take up 50% of the available width for the image */
-    /*}
+/*}
 
     .col-md-10 {
         flex: 3;*/ /* Take up 50% of the available width for the content */
-    /*text-align: center;
+/*text-align: center;
     }*/
 
-    /*=====*/
+/*=====*/
 
 
-    /*.col-md-2 {
+/*.col-md-2 {
         flex: 1;*/ /* Take up 20% of the available width for the image */
-    /*}
+/*}
 
     .col-md-10 {
         flex: 5;*/ /* Take up 80% of the available width for the content */
-        /*text-align: center;
+/*text-align: center;
         color: aquamarine;
     }
 
     .full-page {
         width: 100%;
         page-break-before: always;*/ /* Ensures a page break before the table for printing */
-    /*}
+/*}
 
     .table {
         width: 100%;
@@ -97,11 +97,11 @@
     }
      PageTitle {
         color: red;*/ /* Set the color of the PageTitle text to red */
-    /*}
+/*}
  
 }*/
 
-    /*==============*/
+/*==============*/
 
 @media print {
     body {
@@ -169,12 +169,13 @@
     .col-md-10 {
         flex: 9;
         text-align: center;
-        color: aquamarine;
+        color: #000;
     }
 
     .full-page {
         width: 100%;
         page-break-before: always;
+        margin-top: 50px;
     }
 
     .table {
@@ -203,7 +204,6 @@
     PageTitle {
         display: none; /* Hide the PageTitle element when printing */
     }
-
 }
 
 /*=======================================================*/
