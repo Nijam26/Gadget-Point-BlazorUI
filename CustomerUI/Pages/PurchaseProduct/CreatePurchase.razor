@@ -3,7 +3,16 @@
 @using CustomerUI.Data
 @using Microsoft.AspNetCore.Components.Forms
 
-<h3>Create Purchase</h3>
+
+<div class="row">
+    <div class="col-lg-9">
+        <h3>Create Purchase</h3>
+    </div>
+    <div class="col-lg-3 text-right">
+        <a href="/purchases" role="button" class="btn btn-secondary btn-sm">Back to List</a>
+    </div>
+</div>
+
 
 <EditForm Model="newPurchase" OnValidSubmit="CreatePurchaseAsync">
     <DataAnnotationsValidator />

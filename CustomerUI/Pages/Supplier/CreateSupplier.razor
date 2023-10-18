@@ -2,7 +2,14 @@
 @using CustomerUI.Services;
 @using CustomerUI.Data;
 
-<h3>Create Supplier</h3>
+<div class="row">
+    <div class="col-lg-9">
+        <h3>Supplier</h3>
+    </div>
+    <div class="col-lg-3 text-right">
+        <a href="/suppliers" role="button" class="btn btn-secondary btn-sm">Back to List</a>
+    </div>
+</div>
 
 <form @onsubmit="CreateSupplierAsync">
     <div class="form-group">

@@ -4,6 +4,9 @@
 @using CustomerUI.Data;
 @inject IProductService productService
 
+<div class="text-center">
+    <img src="/gadgetpoint.png" alt="Logo" />
+</div>
 <div class="d-flex align-items-center justify-content-center">
     <h3 style="color: #808080; font-weight: bold;">All Product Information</h3>
 </div>
@@ -22,7 +25,6 @@
 @if (showReport)
 {
     <div class="container-fluid">
-        <!-- ... Rest of your report section ... -->
         <ProductReport />
     </div>
 }

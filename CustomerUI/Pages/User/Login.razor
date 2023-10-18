@@ -2,39 +2,49 @@
 @using CustomerUI.Account
 @using CustomerUI.Services
 @inject IAuthService AuthService
-@inject UserAccountService userAccountService
-@inject AuthenticationStateProvider authStateProvider
+@inject UserAccountService UserAccountService
+@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject IJSRuntime JSRuntime
 
-<h3>Login</h3>
 
-<EditForm Model="loginDto" OnValidSubmit="Loginmain">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
 
-    <div class="form-group">
-        <label for="email">Email</label>
-        <InputText id="email" class="form-control" @bind-Value="loginDto.Email" />
+<div class="login-container">
+    <div class="text-center">
+        <img src="/gadgetpoint.png" alt="Logo" />
     </div>
-    <div class="form-group">
-        <label for="Password">Password</label>
-        <InputText id="Password" type="password" class="form-control" @bind-Value="loginDto.Password" />
-    </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-</EditForm>
+    <h3 class="text-center">Login</h3>
+    <EditForm Model="loginDto" OnValidSubmit="LoginMain">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="loginDto.Email" />
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="loginDto.Password" />
+        </div>
+        <div class="text-center">
+            <!-- Center the button -->
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+    </EditForm>
+</div>
 
 @code {
     private LoginDTO loginDto = new LoginDTO();
 
-    private async Task Loginmain()
+    private async Task LoginMain()
     {
         var user = await AuthService.Login(loginDto);
-        var userAccount = userAccountService.GetByUserName(loginDto.Email);
+        var userAccount = UserAccountService.GetByUserName(loginDto.Email);
+
         if (user != null)
         {
-            var coustomAuthStateProvider = (CustomAuthentication)authStateProvider;
-            await coustomAuthStateProvider.UpdateAuthenticationState(new LoginDTO
+            var customAuthStateProvider = AuthStateProvider as CustomAuthentication;
+            await customAuthStateProvider.UpdateAuthenticationState(new LoginDTO
                 {
                     Email = userAccount.Email,
                     Role = userAccount.Role
@@ -45,12 +55,39 @@
         else
         {
             // Handle login failure
-
             if (userAccount == null || userAccount.Password != loginDto.Password)
             {
-                await JSRuntime.InvokeVoidAsync("alert", "Invalid User name or password");
+                await JSRuntime.InvokeVoidAsync("alert", "Invalid username or password");
                 return;
             }
         }
     }
 }
+
+<style>
+    .login-container {
+        margin-top: 20%;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f8f8;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+
+    .center-container {
+        text-align: center;
+    }
+
+    .center-image {
+        width: 100px; /* Adjust the width as needed */
+        height: auto; /* To maintain aspect ratio */
+        margin-bottom: 20px; /* Adjust the spacing between the image and text */
+    }
+
+</style>
