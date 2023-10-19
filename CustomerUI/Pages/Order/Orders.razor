@@ -1,0 +1,300 @@
+﻿@page "/orders"
+@using CustomerUI.Pages.Report
+@using CustomerUI.Services
+@using CustomerUI.Data
+
+
+@using CustomerUI.Account
+@inject IAuthService AuthService
+@inject UserAccountService UserAccountService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+
+<div class="d-flex align-items-center justify-content-center">
+    <h3 style="color: #808080; font-weight: bold;">All Orders Information</h3>
+</div>
+
+<div class="d-flex align-items-center justify-content-between filter-container">
+    <div class="d-flex">
+        <input type="text" @bind="filterText" placeholder="Filter by Customer Email" @oninput="OnFilterTextChanged">
+    </div>
+    <button @onclick="CreateOrder" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Orders</button>
+</div>
+<p>Serch Name: @filterText</p>
+
+<!-- Add a button to toggle the report section -->
+@*<button @onclick="ToggleReport" class="btn btn-primary"><i class="fas fa-file"></i> Show Report</button>
+@if (showReport)
+{
+    <div class="container-fluid">
+        <!-- ... Rest of your report section ... -->
+        <BrandReport />
+    </div>
+}*@
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Serial No.</th>
+            <th>Customer Email</th>
+            <th>Order Date</th>
+            <th>Action</th>
+            <!-- Add more columns as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        @if (pagedOrders.Any())
+        {
+            @for (int i = 0; i < pagedOrders.Count(); i++)
+            {
+                var order = pagedOrders.ElementAt(i);
+                int serialNumber = (CurPage - 1) * pageSize + i + 1;
+
+                <tr>
+                    <td>@serialNumber</td>
+                    <td>@order.CustomerEmail</td>
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <!-- Add more columns as needed -->
+                    <td>
+                        <button @onclick="() => EditOrder(order.OrderId)" class="edit-button"><i class="fas fa-edit"></i> Edit</button>
+                        <button @onclick="() => DeleteOrder(order.OrderId)" class="delete-button"><i class="fas fa-trash"></i>  Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3">No Results Found</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <input type="button" class="btn btn-lg" id="prev" @onclick="PrevPage" value="Previous" />
+    @for (int i = 1; i <= totalPages; i++)
+    {
+        int j = i;
+        @if (i == CurPage)
+        {
+            <span class="px-2" style="font-weight:bold">@i</span>
+        }
+        else
+        {
+            <span class="px-2" cursor="pointer" @onclick="()=> ShowPage(j)">@i</span>
+        }
+    }
+    <input type="button" class="btn btn-lg" id="next" @onclick="NextPage" value="Next" />
+</div>
+@code {
+    //List<Order> orders;
+
+    // private IEnumerable<Order> orders = new List<Order>();
+
+    // [Inject]
+    // private IOrderService OrderService { get; set; }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     orders = await OrderService.GetOrdersAsync();
+    // }
+
+
+    private int serialOffset = 1;
+    private int serialNumber = 1; // Initialize to 1 or any other starting value
+
+    private int CurPage = 1;
+    private int pageSize = 5; // Adjust the page size as needed
+
+    public string filterText = "";
+    private string sortBy = "OrderId";
+    private bool sortAscending = true;
+
+    private Order? editOrder;
+    private IEnumerable<Order> OrdersList = new List<Order>();
+    private IEnumerable<Order> pagedOrders = new List<Order>(); // Track the paged items
+    private int totalPages;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+    [Inject]
+    private IOrderService OrderService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        OrdersList = await OrderService.GetAllOrders();
+        await ShowPage();
+    }
+
+    protected async Task ShowPage()
+    {
+        // Apply filtering first
+        var filteredOrdersList = GetFilteredAndSortedOrders();
+
+        // Calculate the index to start skipping from based on CurPage and pageSize
+        int startIndex = (CurPage - 1) * pageSize;
+
+        // Filter and paginate the BrandsList
+        pagedOrders = filteredOrdersList.Skip(startIndex).Take(pageSize).ToList();
+
+        // Calculate total pages based on the filtered list
+        totalPages = (int)Math.Ceiling(filteredOrdersList.Count() / (double)pageSize);
+    }
+
+    protected async Task NextPage()
+    {
+        if (CurPage < totalPages)
+        {
+            CurPage++;
+            await ShowPage();
+        }
+    }
+
+    protected async Task PrevPage()
+    {
+        if (CurPage > 1)
+        {
+            CurPage--;
+            await ShowPage();
+        }
+    }
+
+    protected async Task ShowPage(int i)
+    {
+        CurPage = i;
+        await ShowPage();
+    }
+
+    private void CreateOrder()
+    {
+        NavigationManager.NavigateTo("/create-order");
+    }
+
+    private async void EditOrder(int orderId)
+    {
+        NavigationManager.NavigateTo($"/edit-order/{orderId}");
+
+        try
+        {
+            editOrder = await OrderService.GetOrderById(orderId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading Brand: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteOrder(int orderId)
+    {
+        try
+        {
+            await OrderService.DeleteOrder(orderId);
+            OrdersList = await OrderService.GetAllOrders();
+            await ShowPage();
+            //ApplyFilter(); // Reapply the filter after deletion
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting order: {ex.Message}");
+        }
+    }
+
+    //filtering
+
+    public IEnumerable<Order> GetFilteredAndSortedOrders()
+    {
+        var filteredOrdersList = OrdersList;
+
+        // Filter based on BrandName
+        if (!string.IsNullOrEmpty(filterText))
+        {
+            var searchText = filterText.Trim().ToLower();
+            Console.WriteLine($"Applying filter: {searchText}"); // Add this line for debugging
+            filteredOrdersList = filteredOrdersList
+                .Where(order => order.CustomerEmail.ToLower().Contains(searchText));
+        }
+
+        // Sort based on the selected column
+        switch (sortBy)
+        {
+            case "Customer Email":
+                filteredOrdersList = sortAscending
+                    ? filteredOrdersList.OrderBy(order => order.CustomerEmail)
+                    : filteredOrdersList.OrderByDescending(order => order.CustomerEmail);
+                break;
+
+                // Add more cases for other columns if needed
+        }
+
+        return filteredOrdersList;
+    }
+
+    //soritng
+
+    private void SortByBrandName()
+    {
+        SetSortCriteria("Customer Email");
+        ShowPage();
+    }
+
+    private void SetSortCriteria(string column)
+    {
+        if (sortBy == column)
+            sortAscending = !sortAscending;
+        else
+            sortAscending = true;
+
+        sortBy = column;
+    }
+
+    public void OnFilterTextChanged(ChangeEventArgs e)
+    {
+        filterText = e.Value.ToString();
+        ShowPage(); // Apply filtering and pagination
+    }
+
+
+
+    private async Task GetAccessToken()
+    {
+        var accessToken = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "accessToken");
+        // Now, you have the access token; you can proceed with making API calls.
+        if (!string.IsNullOrEmpty(accessToken))
+        {
+            var orders = await OrderService.GetAllOrders();
+            // Process the orders as needed.
+        }
+        else
+        {
+            // Handle the case where the access token is missing.
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetAccessToken();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    //Report Toggle
+    //private bool showReport = false;
+
+    //private void ToggleReport()
+    //{
+    //    showReport = !showReport;
+    //}
+}

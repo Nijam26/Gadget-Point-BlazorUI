@@ -1,0 +1,57 @@
+﻿@page "/edit-order/{Id}"
+@using CustomerUI.Services;
+@using CustomerUI.Data;
+
+<h3>Edit Order</h3>
+
+<!-- Brand editing form -->
+<form @onsubmit="UpdateOrder">
+    <div class="form-group">
+        <label for="customerEmail">Customer Email </label>
+        <input type="text" class="form-control" id="customerEmail" @bind="editedOrder.CustomerEmail">
+    </div>
+
+    <div class="form-group">
+        <label for="orderDate">Order Date</label>
+        <input type="date" class="form-control" id="orderDate" @bind="editedOrder.OrderDate">
+    </div>
+
+
+    <br />
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+
+    private Order editedOrder = new Order();
+
+    [Inject]
+    private IOrderService OrderService { get; set; }
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (int.TryParse(id, out int Id))
+        {
+            editedOrder = await OrderService.GetOrderById(Id);
+
+        }
+    }
+
+    private async Task UpdateOrder()
+    {
+        try
+        {
+            await OrderService.UpdateOrder(editedOrder);
+            NavigationManager.NavigateTo("/orders");
+        }
+        catch (Exception ex)
+        {
+            // Handle any errors or show error messages to the user
+            Console.WriteLine($"Error updating Order: {ex.Message}");
+        }
+    }
+}

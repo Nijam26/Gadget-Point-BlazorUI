@@ -1,0 +1,57 @@
+﻿@page "/create-order"
+@using CustomerUI.Services;
+@using CustomerUI.Data;
+
+<h3>Create Order</h3>
+
+<form @onsubmit="CreateOrderAsync">
+    <div class="form-group">
+        <label for="productId">Product Name:</label>
+        <select class="form-control" id="products" @bind="selectedProductId">
+            <option value="">Select Product</option>
+            @foreach (var product in products)
+            {
+                <option value="@product.ProductId">@product.ProductName</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="customerEmail">Customer Email</label>
+        <input type="text" class="form-control" id="customerEmail" @bind="newOrder.CustomerEmail">
+    </div>
+    <div class="form-group">
+        <label for="orderDate">Order Date</label>
+        <input type="date" class="form-control" id="orderDate" @bind="newOrder.OrderDate">
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Add New Order</button>
+</form>
+
+
+@code {
+    private Order newOrder = new Order();
+    private int selectedProductId; // Add this property
+
+    private List<Product> products = new List<Product>();
+
+    [Inject]
+    private IProductService ProductService { get; set; }
+
+    [Inject]
+    private IOrderService OrderService { get; set; }
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    private async Task CreateOrderAsync()
+    {
+        await OrderService.CreateOrder(newOrder);
+        NavigationManager.NavigateTo("/orders");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = (await ProductService.GetAllProducts()).ToList();
+
+    }
+}

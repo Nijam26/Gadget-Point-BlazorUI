@@ -57,6 +57,10 @@ builder.Services.AddHttpClient<IPurchaseService, PurchaseService>(client =>
     client.BaseAddress = baseAddress;
 });
 
+builder.Services.AddHttpClient<IOrderService, OrderService>(client =>
+{
+    client.BaseAddress = baseAddress;
+});
 
 // Configure the HttpClient for AuthService
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -65,7 +69,6 @@ builder.Services.AddHttpClient<AuthService>((services, client) =>
 {
     client.BaseAddress = baseAddress;
 });
-
 
 
 
